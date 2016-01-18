@@ -7,7 +7,89 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!-- 画面下部のコマンドバー（モバイル用） -->
+    <Page.BottomAppBar>
+        <CommandBar x:Name="bottomAppBar" Visibility="Visible" >
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Sync" Label="更新" />
+                <AppBarButton Icon="Setting" Label="設定" />
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="Help" Label="バージョン情報" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
 
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!-- トリガーによる表示状態変更 -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="bottomAppBar.Visibility" Value="Collapsed" />
+                        <Setter Target="topAppBar.Visibility" Value="Visible" />
+                        <Setter Target="titleOnlyBar.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="bottomAppBar.Visibility" Value="Visible" />
+                        <Setter Target="topAppBar.Visibility" Value="Collapsed" />
+                        <Setter Target="titleOnlyBar.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        
+        <!-- タイトルとコマンドボタンを表示するバー -->
+        <Grid Grid.Row="0">
+            <CommandBar x:Name="topAppBar" Visibility="Visible" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" >
+                <CommandBar.PrimaryCommands>
+                    <AppBarButton Icon="Sync" Label="更新" />
+                    <AppBarButton Icon="Setting" Label="設定" />
+                </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                    <AppBarButton Icon="Help" Label="バージョン情報" />
+                </CommandBar.SecondaryCommands>
+                <CommandBar.Content>
+                    <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
+                        <TextBlock Text="Radame" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    </Border>
+                </CommandBar.Content>
+            </CommandBar>
+        </Grid>
+        <!-- タイトルのみを表示するバー -->
+        <Grid Grid.Row="0" x:Name="titleOnlyBar" Visibility="Collapsed" >
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
+                <TextBlock Text="Radame" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Pivot x:Name="imagePivot" ItemsSource="{Binding ItemList}">
+                <Pivot.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </Pivot.HeaderTemplate>
+                <Pivot.ItemTemplate>
+                    <DataTemplate>
+                        <Image Source="{Binding ImageUrl}" />
+                    </DataTemplate>
+                </Pivot.ItemTemplate>
+            </Pivot>
+        </Grid>
     </Grid>
 </Page>
