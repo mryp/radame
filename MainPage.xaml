@@ -65,7 +65,7 @@
                 </CommandBar.SecondaryCommands>
                 <CommandBar.Content>
                     <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
-                        <TextBlock Text="Radame" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                        <TextBlock Text="{Binding Title}" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
                     </Border>
                 </CommandBar.Content>
             </CommandBar>
@@ -73,7 +73,7 @@
         <!-- タイトルのみを表示するバー -->
         <Grid Grid.Row="0" x:Name="titleOnlyBar" Visibility="Collapsed" >
             <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
-                <TextBlock Text="Radame" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                <TextBlock Text="{Binding Title}" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
             </Border>
         </Grid>
 

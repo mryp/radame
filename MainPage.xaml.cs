@@ -40,7 +40,8 @@ namespace Radame
             base.OnNavigatedTo(e);
 
             this.ViewModel.Init();
-            imagePivot.DataContext = this.ViewModel;
+            this.DataContext = this.ViewModel;
+            //imagePivot.DataContext = this.ViewModel;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

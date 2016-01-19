@@ -19,5 +19,11 @@ namespace Radame
             get;
             set;
         }
+
+        public DateTime Time
+        {
+            get;
+            set;
+        }
     }
 }
