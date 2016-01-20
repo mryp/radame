@@ -11,11 +11,11 @@
     <Page.BottomAppBar>
         <CommandBar x:Name="bottomAppBar" Visibility="Visible" >
             <CommandBar.PrimaryCommands>
-                <AppBarButton Icon="Sync" Label="更新" />
-                <AppBarButton Icon="Setting" Label="設定" />
+                <AppBarButton Icon="Sync" Label="更新" Click="SyncButton_Click" />
+                <AppBarButton Icon="Setting" Label="設定" Click="SettingButton_Click" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Help" Label="バージョン情報" />
+                <AppBarButton Icon="Help" Label="バージョン情報" Click="VersionInfoButton_Click" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
@@ -57,11 +57,11 @@
         <Grid Grid.Row="0">
             <CommandBar x:Name="topAppBar" Visibility="Visible" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" >
                 <CommandBar.PrimaryCommands>
-                    <AppBarButton Icon="Sync" Label="更新" />
-                    <AppBarButton Icon="Setting" Label="設定" />
+                    <AppBarButton Icon="Sync" Label="更新" Click="SyncButton_Click" />
+                    <AppBarButton Icon="Setting" Label="設定" Click="SettingButton_Click" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                    <AppBarButton Icon="Help" Label="バージョン情報" />
+                    <AppBarButton Icon="Help" Label="バージョン情報" Click="VersionInfoButton_Click" />
                 </CommandBar.SecondaryCommands>
                 <CommandBar.Content>
                     <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
@@ -86,7 +86,7 @@
                 </Pivot.HeaderTemplate>
                 <Pivot.ItemTemplate>
                     <DataTemplate>
-                        <Image Source="{Binding ImageUrl}" />
+                        <Image Source="{Binding ImageUrl}" Margin="-8,0,-8,0" />
                     </DataTemplate>
                 </Pivot.ItemTemplate>
             </Pivot>

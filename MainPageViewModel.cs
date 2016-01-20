@@ -74,7 +74,7 @@ namespace Radame
         public async void Init()
         {
             this.ItemList.Clear();
-            this.Title = "Radame - " + DateTime.Now.ToString("MM/dd");
+            this.Title = "Radame - " + DateTime.Now.ToString("MM/dd HH:mm") + "取得";
 
             PivotItem latestItem = await getLatestItem();
             if (latestItem != null)
@@ -109,7 +109,7 @@ namespace Radame
                     DateTime time = getDateTimeFromFileName(fileName);
                     item = new PivotItem()
                     {
-                        Name = getPivotHeaderText(time) + "(最新)",
+                        Name = getPivotHeaderText(time),
                         ImageUrl = getImageUrl(RADAR_BASE_URL, AREA_CODE, fileName),
                         Time = time,
                     };
