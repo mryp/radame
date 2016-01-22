@@ -5,8 +5,7 @@
     xmlns:local="using:Radame"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    SizeChanged="Page_SizeChanged">
+    mc:Ignorable="d">
 
     <!-- 画面下部のコマンドバー（モバイル用） -->
     <Page.BottomAppBar>
@@ -79,7 +78,7 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <Pivot x:Name="imagePivot" ItemsSource="{Binding ItemList}">
+            <Pivot x:Name="imagePivot" ItemsSource="{Binding ItemList}" SelectionChanged="imagePivot_SelectionChanged">
                 <Pivot.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Name}"/>
@@ -90,12 +89,13 @@
                         <Grid Margin="-10,0,-10,0">
                             <ScrollViewer x:Name="imageScrollViewr"  ZoomMode="Enabled" 
                                           SizeChanged="imageScrollViewr_SizeChanged"
-                                          VerticalScrollBarVisibility="Auto"  
-                                          HorizontalScrollBarVisibility="Auto"                                           
-                                          MinZoomFactor="0.5" 
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          MinZoomFactor="1" 
                                           MaxZoomFactor="4">
-                                <Image Source="{Binding ImageUrl}"
-                                       DoubleTapped="Image_DoubleTapped" />
+                                <Image Source="{Binding ImageData}"
+                                       Height="{Binding Height}"
+                                       Width="{Binding Width}" />
                             </ScrollViewer>
                         </Grid>
                     </DataTemplate>

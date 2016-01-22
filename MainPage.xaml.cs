@@ -38,9 +38,10 @@ namespace Radame
         /// </summary>
         private static long m_lastReloadTime = 0;
 
-        private Size m_windowSize = new Size();
-
-        private Size m_contentSize = new Size();
+        /// <summary>
+        /// スクロール領域のサイズ
+        /// </summary>
+        private Size? m_contentSize = null;
 
         /// <summary>
         /// モデルビュー
@@ -107,14 +108,7 @@ namespace Radame
         {
             base.OnNavigatedFrom(e);
         }
-
-        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Debug.WriteLine("Page_SizeChanged size=" + e.NewSize.ToString());
-            m_windowSize = e.NewSize;
-
-        }
-
+        
         /// <summary>
         /// ステータスバーの表示初期化
         /// </summary>
@@ -147,7 +141,7 @@ namespace Radame
             }
 
             m_lastReloadTime = DateTime.Now.Ticks;
-            this.ViewModel.Init(m_contentSize);
+            this.ViewModel.Init();
         }
 
         /// <summary>
@@ -169,42 +163,44 @@ namespace Radame
         {
 
         }
-
-        private void Image_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        
+        /// <summary>
+        /// ピボット位置を変更した時
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void imagePivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Image image = sender as Image;
-            ScrollViewer scrollViewr = image.Parent as ScrollViewer;
-            if (image == null || scrollViewr == null)
+            Debug.WriteLine("imagePivot_SelectionChanged");
+            updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, false);
+        }
+
+        /// <summary>
+        /// スクロールバーサイズ設定時
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void imageScrollViewr_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Debug.WriteLine("imageScrollViewr_SizeChanged");
+            m_contentSize = e.NewSize;
+            updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, true);
+        }
+
+        /// <summary>
+        /// 画像を設定する
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="contentSize"></param>
+        private void updateImage(PivotItem item, Size? contentSize, bool reload)
+        {
+            if (item == null || !contentSize.HasValue)
             {
                 return;
             }
-            Point touchPos = e.GetPosition(image);
-            Debug.WriteLine("Image_DoubleTapped width=" + image.Width.ToString() + "/" + image.ActualWidth.ToString());
 
-            /*
-            if (image.ActualWidth > m_windowSize.Width || image.ActualHeight > m_windowSize.Height)
-            {
-                Size? orgSize = image.Tag as Size?;
-                if (orgSize != null)
-                {
-                    //scrollViewr.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                    image.Height = orgSize.Value.Height;
-                    image.Width = orgSize.Value.Width;
-                }
-            }
-            else
-            {
-                image.Tag = new Size(image.ActualWidth, image.ActualHeight);    //もとに戻すため現在のサイズを覚える
-                image.Height = image.ActualHeight * SCALE_VALUE;
-                image.Width = image.ActualWidth * SCALE_VALUE;
-            }
-            */
-        }
-
-        private void imageScrollViewr_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Debug.WriteLine("imageScrollViewr_SizeChanged size=" + e.NewSize.ToString());
-            m_contentSize = e.NewSize;
+            Debug.WriteLine("updateImage");
+            item.SetImage(contentSize.Value, reload);
         }
     }
 }

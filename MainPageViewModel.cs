@@ -72,18 +72,18 @@ namespace Radame
             }
         }
 
-        public async void Init(Size contentSize)
+        public async void Init()
         {
             this.ItemList.Clear();
             this.Title = "Radame - " + DateTime.Now.ToString("MM/dd HH:mm") + "取得";
 
-            PivotItem latestItem = await getLatestItem(contentSize);
+            PivotItem latestItem = await getLatestItem();
             if (latestItem != null)
             {
                 this.ItemList.Add(latestItem);
             }
 
-            PivotItem[] nowcastList = await GetNowCastItemList(contentSize);
+            PivotItem[] nowcastList = await GetNowCastItemList();
             if (nowcastList != null && nowcastList.Length > 0)
             {
                 foreach (PivotItem item in nowcastList)
@@ -96,7 +96,7 @@ namespace Radame
             }
         }
 
-        private async Task<PivotItem> getLatestItem(Size contentSize)
+        private async Task<PivotItem> getLatestItem()
         {
             //最新のデータ１件だけを取得して返す
             PivotItem item = null;
@@ -113,8 +113,6 @@ namespace Radame
                         Name = getPivotHeaderText(time),
                         ImageUrl = getImageUrl(RADAR_BASE_URL, AREA_CODE, fileName),
                         Time = time,
-                        Width = contentSize.Width,
-                        Height = contentSize.Height,
                     };
                     break;
                 }
@@ -123,7 +121,7 @@ namespace Radame
             return item;
         }
 
-        private async Task<PivotItem[]> GetNowCastItemList(Size contentSize)
+        private async Task<PivotItem[]> GetNowCastItemList()
         {
             List<PivotItem> itemList = new List<PivotItem>();
             string json = await getHttpText(NOW_CAST_JS_URL);
@@ -139,8 +137,6 @@ namespace Radame
                         Name = getPivotHeaderText(time) + "(予想)",
                         ImageUrl = getImageUrl(NOW_CAST_BASE_URL, AREA_CODE, fileName),
                         Time = time,
-                        Width = contentSize.Width,
-                        Height = contentSize.Height,
                     });
                 }
             }
