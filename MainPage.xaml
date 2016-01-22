@@ -88,9 +88,15 @@
                 <Pivot.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="-10,0,-10,0">
-                            <ScrollViewer >
-                                <Image Source="{Binding ImageUrl}" DoubleTapped="Image_DoubleTapped" />
-                            </ScrollViewer>                           
+                            <ScrollViewer x:Name="imageScrollViewr"  ZoomMode="Enabled" 
+                                          SizeChanged="imageScrollViewr_SizeChanged"
+                                          VerticalScrollBarVisibility="Auto"  
+                                          HorizontalScrollBarVisibility="Auto"                                           
+                                          MinZoomFactor="0.5" 
+                                          MaxZoomFactor="4">
+                                <Image Source="{Binding ImageUrl}"
+                                       DoubleTapped="Image_DoubleTapped" />
+                            </ScrollViewer>
                         </Grid>
                     </DataTemplate>
                 </Pivot.ItemTemplate>

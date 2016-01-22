@@ -40,6 +40,8 @@ namespace Radame
 
         private Size m_windowSize = new Size();
 
+        private Size m_contentSize = new Size();
+
         /// <summary>
         /// モデルビュー
         /// </summary>
@@ -82,6 +84,7 @@ namespace Radame
             Debug.WriteLine(e.WindowActivationState);
             if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
             {
+                Debug.WriteLine("Window_Activated state=" + e.WindowActivationState.ToString());
                 updateTask(true);
             }
         }
@@ -109,6 +112,7 @@ namespace Radame
         {
             Debug.WriteLine("Page_SizeChanged size=" + e.NewSize.ToString());
             m_windowSize = e.NewSize;
+
         }
 
         /// <summary>
@@ -143,7 +147,7 @@ namespace Radame
             }
 
             m_lastReloadTime = DateTime.Now.Ticks;
-            this.ViewModel.Init();
+            this.ViewModel.Init(m_contentSize);
         }
 
         /// <summary>
@@ -175,14 +179,15 @@ namespace Radame
                 return;
             }
             Point touchPos = e.GetPosition(image);
+            Debug.WriteLine("Image_DoubleTapped width=" + image.Width.ToString() + "/" + image.ActualWidth.ToString());
 
-            Debug.WriteLine("Image_DoubleTapped touchPos=" + touchPos.ToString());
+            /*
             if (image.ActualWidth > m_windowSize.Width || image.ActualHeight > m_windowSize.Height)
             {
                 Size? orgSize = image.Tag as Size?;
                 if (orgSize != null)
                 {
-                    scrollViewr.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                    //scrollViewr.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     image.Height = orgSize.Value.Height;
                     image.Width = orgSize.Value.Width;
                 }
@@ -192,13 +197,14 @@ namespace Radame
                 image.Tag = new Size(image.ActualWidth, image.ActualHeight);    //もとに戻すため現在のサイズを覚える
                 image.Height = image.ActualHeight * SCALE_VALUE;
                 image.Width = image.ActualWidth * SCALE_VALUE;
-
-                /*
-                scrollViewr.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-                scrollViewr.ScrollToHorizontalOffset(touchPos.X);
-                scrollViewr.ScrollToVerticalOffset(touchPos.Y);
-                */
             }
+            */
+        }
+
+        private void imageScrollViewr_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Debug.WriteLine("imageScrollViewr_SizeChanged size=" + e.NewSize.ToString());
+            m_contentSize = e.NewSize;
         }
     }
 }
