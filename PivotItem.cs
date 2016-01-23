@@ -213,12 +213,7 @@ namespace Radame
             this.Width = NOT_FOUND_WIDTH;
             this.Height = NOT_FOUND_HEIGHT;
         }
-
-        private void Image_ImageOpened(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }        
-
+        
         #region INotifyPropertyChanged member
 
         public event PropertyChangedEventHandler PropertyChanged;

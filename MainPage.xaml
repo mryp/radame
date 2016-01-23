@@ -101,6 +101,8 @@
                     </DataTemplate>
                 </Pivot.ItemTemplate>
             </Pivot>
+
+            <ProgressRing IsActive="{Binding IsLoading}" Height="48" Width="48" />
         </Grid>
     </Grid>
 </Page>

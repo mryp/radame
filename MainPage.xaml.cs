@@ -172,7 +172,7 @@ namespace Radame
         private void imagePivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Debug.WriteLine("imagePivot_SelectionChanged");
-            updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, false);
+            updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, true);
         }
 
         /// <summary>
@@ -199,8 +199,9 @@ namespace Radame
                 return;
             }
 
-            Debug.WriteLine("updateImage");
+            Debug.WriteLine("updateImage size=" + contentSize);
             item.SetImage(contentSize.Value, reload);
+            this.ViewModel.IsLoading = false;
         }
     }
 }

@@ -36,6 +36,11 @@ namespace Radame
         private string m_title = "";
 
         /// <summary>
+        /// データ読込中かどうか
+        /// </summary>
+        private bool m_isLoading = true;
+
+        /// <summary>
         /// フォルダ・ファイルリスト
         /// </summary>
         public ObservableCollection<PivotItem> ItemList
@@ -74,11 +79,31 @@ namespace Radame
         }
 
         /// <summary>
+        /// データ読込中かどうか
+        /// </summary>
+        public bool IsLoading
+        {
+            get
+            {
+                return m_isLoading;
+            }
+            set
+            {
+                if (value != m_isLoading)
+                {
+                    m_isLoading = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
         /// データ取得
         /// </summary>
         public async void Init()
         {
             this.ItemList.Clear();
+            this.Title = Windows.ApplicationModel.Package.Current.DisplayName;
 
             PivotItem latestItem = await getLatestItem();
             if (latestItem == null)
@@ -109,6 +134,7 @@ namespace Radame
             this.ItemList.Clear();
             this.Title = Windows.ApplicationModel.Package.Current.DisplayName 
                 + " - データ取得エラー";
+            this.IsLoading = false;
         }
 
         /// <summary>
