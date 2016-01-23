@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -59,20 +60,8 @@ namespace Radame
         {
             this.InitializeComponent();
             this.ViewModel = new MainPageViewModel();
-
-            //イベント設定
-            Application.Current.Resuming += App_Resuming;
-            Window.Current.Activated += Window_Activated;
+            
             ShowStatusBar();
-        }
-
-        /// <summary>
-        /// アプリ再開起動
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void App_Resuming(object sender, object e)
-        {
         }
 
         /// <summary>
@@ -80,10 +69,10 @@ namespace Radame
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Window_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        private void Window_Activated(object sender, WindowActivatedEventArgs e)
         {
             Debug.WriteLine(e.WindowActivationState);
-            if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
+            if (e.WindowActivationState == CoreWindowActivationState.CodeActivated)
             {
                 Debug.WriteLine("Window_Activated state=" + e.WindowActivationState.ToString());
                 updateTask(true);
@@ -97,7 +86,18 @@ namespace Radame
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            Debug.WriteLine("OnNavigatedTo mode=" + e.NavigationMode);
+            Window.Current.Activated += Window_Activated;
+
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
+                this.Frame.CanGoBack ?
+                AppViewBackButtonVisibility.Visible :
+                AppViewBackButtonVisibility.Collapsed;
             this.DataContext = this.ViewModel;
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                updateTask(false);
+            }
         }
 
         /// <summary>
@@ -107,6 +107,8 @@ namespace Radame
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            Debug.WriteLine("OnNavigatedFrom mode=" + e.NavigationMode);
+            Window.Current.Activated -= Window_Activated;
         }
         
         /// <summary>
@@ -159,7 +161,7 @@ namespace Radame
 
         private void SettingButton_Click(object sender, RoutedEventArgs e)
         {
-
+            this.Frame.Navigate(typeof(SettingPage));
         }
 
         private void VersionInfoButton_Click(object sender, RoutedEventArgs e)

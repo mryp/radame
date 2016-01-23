@@ -23,7 +23,6 @@ namespace Radame
 
         private const string NOW_CAST_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/nowcast";
         private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
-        private const int AREA_CODE = 211;
 
         private const int DEF_INIT_WAIT_TIME = 1000;
 
@@ -203,7 +202,7 @@ namespace Radame
                     item = new PivotItem()
                     {
                         Name = getPivotHeaderText(time),
-                        ImageUrl = getImageUrl(RADAR_BASE_URL, AREA_CODE, fileName),
+                        ImageUrl = getImageUrl(RADAR_BASE_URL, getAreaCode(), fileName),
                         Time = time,
                     };
                     break;
@@ -231,7 +230,7 @@ namespace Radame
                     itemList.Add(new PivotItem()
                     {
                         Name = getPivotHeaderText(time) + "(予想)",
-                        ImageUrl = getImageUrl(NOW_CAST_BASE_URL, AREA_CODE, fileName),
+                        ImageUrl = getImageUrl(NOW_CAST_BASE_URL, getAreaCode(), fileName),
                         Time = time,
                     });
                 }
@@ -294,6 +293,11 @@ namespace Radame
             return output.AddMinutes(addTime * 5);
         }
 
+        private string getAreaCode()
+        {
+            return AppSettings.Current.AreaCode;
+        }
+        
         /// <summary>
         /// 画像URLを取得する
         /// </summary>
@@ -301,7 +305,7 @@ namespace Radame
         /// <param name="areaCode"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        private string getImageUrl(string baseUrl, int areaCode, string fileName)
+        private string getImageUrl(string baseUrl, string areaCode, string fileName)
         {
             return String.Format("{0}/{1}/{2}", baseUrl, areaCode, fileName);
         }

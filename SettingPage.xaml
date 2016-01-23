@@ -1,0 +1,42 @@
+﻿<Page
+    x:Class="Radame.SettingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Radame"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" x:Name="titleOnlyBar" Visibility="Visible" >
+            <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
+                <TextBlock Text="設定" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <StackPanel Padding="16">
+                    <TextBlock FontSize="24" Margin="0,0,0,8">地方設定</TextBlock>
+                    <ComboBox Name="AreaComboBox" 
+                              Header="表示画像の地方を選択する" 
+                              Width="200"
+                              ItemsSource="{Binding AreaCodeList}"
+                              SelectedValue="{Binding AreaCodeSelectedCode, Mode=TwoWay}" 
+                              SelectedValuePath="AreaCode" 
+                              DisplayMemberPath="Name">
+                    </ComboBox>
+
+                    <TextBlock FontSize="24" Margin="0,24,8,0">バージョン情報</TextBlock>
+                    <TextBlock x:Name="VersionInfo">Radame version 1.0.0.0</TextBlock>
+                    <TextBlock>(c) 2016 PORING SOFT</TextBlock>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>
