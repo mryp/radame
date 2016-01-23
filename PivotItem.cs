@@ -16,7 +16,9 @@ namespace Radame
 {
     public class PivotItem : INotifyPropertyChanged
     {
-        private const string NOT_FOUNT_IMAGE = "ms-appx:///Assets/no_data.png";
+        private const string NOT_FOUND_IMAGE = "ms-appx:///Assets/no_data.png";
+        private const int NOT_FOUND_WIDTH = 300;
+        private const int NOT_FOUND_HEIGHT = 300;
 
         private string m_name;
         private string m_imageUrl;
@@ -161,53 +163,55 @@ namespace Radame
             {
                 return; //すでに格納済みのため何もしない
             }
-
-            BitmapImage image = null;
+            
             try
             {
-                image = new BitmapImage(new Uri(m_imageUrl));
+                BitmapImage image = new BitmapImage(new Uri(m_imageUrl));
+                image.ImageOpened += (sender, e) =>
+                {
+                    //画像読み込み完了時に画像サイズを画面ぴったりにする
+                    double scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
+                    double width = image.PixelWidth / scale;
+                    double height = image.PixelHeight / scale;
+                    if (contentSize.Height > contentSize.Width)
+                    {
+                        double ws = contentSize.Width / (image.PixelWidth / scale);
+                        width = contentSize.Width;
+                        height = (image.PixelHeight / scale) * ws;
+                    }
+                    else
+                    {
+                        double hs = contentSize.Height / (image.PixelHeight / scale);
+                        width = (image.PixelWidth / scale) * hs;
+                        height = contentSize.Height;
+                    }
+
+                    this.Width = width;
+                    this.Height = height;
+                };
+                image.ImageFailed += (sender, e) =>
+                {
+                    Debug.WriteLine("画像読み込み失敗 e=" + e.ErrorMessage);
+                    setErrorImage();
+                };
+                this.ImageData = image;
             }
             catch (Exception e)
             {
                 Debug.WriteLine("画像読み込み失敗 e=" + e.Message);
-                image = null;
+                setErrorImage();
             }
-            if (image == null)
-            {
-                image = new BitmapImage(new Uri(NOT_FOUNT_IMAGE));
-            }
-            image.ImageOpened += (sender, e) =>
-            {
-                //画像読み込み完了時に画像サイズを画面ぴったりにする
-                double scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
-                double width = image.PixelWidth / scale;
-                double height = image.PixelHeight / scale;
-                if (contentSize.Height > contentSize.Width)
-                {
-                    double ws = contentSize.Width / (image.PixelWidth / scale);
-                    width = contentSize.Width;
-                    height = (image.PixelHeight / scale) * ws;
-                }
-                else
-                {
-                    double hs = contentSize.Height / (image.PixelHeight / scale);
-                    width = (image.PixelWidth / scale) * hs;
-                    height = contentSize.Height;
-                }
+        }
 
-                this.Width = width;
-                this.Height = height;
-            };
-            image.ImageFailed += (sender, e) =>
-            {
-                //TODO: エラー処理はとりあえず仮実装
-                Debug.WriteLine("画像読み込み失敗 e=" + e.ErrorMessage);
-                image = new BitmapImage(new Uri(NOT_FOUNT_IMAGE));
-                this.ImageData = image;
-                this.Width = 300;
-                this.Height = 300;
-            };
+        /// <summary>
+        /// 画像設定失敗時のエラー画像を設定する
+        /// </summary>
+        private void setErrorImage()
+        {
+            BitmapImage image = new BitmapImage(new Uri(NOT_FOUND_IMAGE));
             this.ImageData = image;
+            this.Width = NOT_FOUND_WIDTH;
+            this.Height = NOT_FOUND_HEIGHT;
         }
 
         private void Image_ImageOpened(object sender, Windows.UI.Xaml.RoutedEventArgs e)

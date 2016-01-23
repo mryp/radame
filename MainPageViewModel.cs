@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -72,16 +73,20 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// データ取得
+        /// </summary>
         public async void Init()
         {
             this.ItemList.Clear();
-            this.Title = "Radame - " + DateTime.Now.ToString("MM/dd HH:mm") + "取得";
 
             PivotItem latestItem = await getLatestItem();
-            if (latestItem != null)
+            if (latestItem == null)
             {
-                this.ItemList.Add(latestItem);
+                initError();
+                return;
             }
+            this.ItemList.Add(latestItem);
 
             PivotItem[] nowcastList = await GetNowCastItemList();
             if (nowcastList != null && nowcastList.Length > 0)
@@ -94,11 +99,24 @@ namespace Radame
                     }
                 }
             }
+
+            this.Title = Windows.ApplicationModel.Package.Current.DisplayName 
+                + " - " + DateTime.Now.ToString("MM/dd HH:mm") + "取得";
         }
 
+        private void initError()
+        {
+            this.ItemList.Clear();
+            this.Title = Windows.ApplicationModel.Package.Current.DisplayName 
+                + " - データ取得エラー";
+        }
+
+        /// <summary>
+        /// 最新のデータ１件だけを取得して返す
+        /// </summary>
+        /// <returns></returns>
         private async Task<PivotItem> getLatestItem()
         {
-            //最新のデータ１件だけを取得して返す
             PivotItem item = null;
             string json = await getHttpText(RADAR_JS_URL);
             string[] lineList = json.Split('\n');
@@ -121,6 +139,10 @@ namespace Radame
             return item;
         }
 
+        /// <summary>
+        /// 予測データリストを取得して返す
+        /// </summary>
+        /// <returns></returns>
         private async Task<PivotItem[]> GetNowCastItemList()
         {
             List<PivotItem> itemList = new List<PivotItem>();
@@ -145,6 +167,11 @@ namespace Radame
             return itemList.ToArray();
         }
 
+        /// <summary>
+        /// 日付からピボットのタイトルヘッダー文字列を生成して返す
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         private string getPivotHeaderText(DateTime date)
         {
             if (date == DateTime.MinValue)
@@ -161,6 +188,11 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// 画像ファイル名から日時を取得する
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private DateTime getDateTimeFromFileName(string fileName)
         {
             //201601192310-00.png
@@ -188,11 +220,23 @@ namespace Radame
             return output.AddMinutes(addTime * 5);
         }
 
+        /// <summary>
+        /// 画像URLを取得する
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="areaCode"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private string getImageUrl(string baseUrl, int areaCode, string fileName)
         {
             return String.Format("{0}/{1}/{2}", baseUrl, areaCode, fileName);
         }
 
+        /// <summary>
+        /// JSONの行文字列からファイル名を取得する
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private string getFileNameFromJsonData(string line)
         {
             string[] splitItems = line.Split('"');
@@ -204,6 +248,12 @@ namespace Radame
             return splitItems[1];
         }
 
+        /// <summary>
+        /// HTTP通信で文字列をダウンロードする
+        /// 失敗時は空文字を返す
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         private async Task<string> getHttpText(string url)
         {
             string text = "";
@@ -217,6 +267,7 @@ namespace Radame
             }
             catch (Exception e)
             {
+                Debug.WriteLine("getHttpText e=" + e.Message);
                 text = "";
             }
 
