@@ -37,6 +37,9 @@
                     <TextBlock FontSize="24" Margin="0,24,8,0">バージョン情報</TextBlock>
                     <TextBlock x:Name="VersionInfo" Text="{Binding VersionInfo}" />
                     <TextBlock>(c) 2016 PORING SOFT</TextBlock>
+
+                    <HyperlinkButton Margin="0,8,0,0" Content="サポートサイト" NavigateUri="http://www.poringsoft.net/radame/"/>
+                    <HyperlinkButton Content="プライバシーポリシー" NavigateUri="http://www.poringsoft.net/radame/privacy/"/>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

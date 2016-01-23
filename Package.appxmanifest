@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="47117PORINGSOFTORG.Radame" Publisher="CN=5BA11BC8-C85C-4026-A701-DF1DD602E54E" Version="1.1.0.0" />
+  <Identity Name="47117PORINGSOFTORG.1658A2A66C43" Publisher="CN=5BA11BC8-C85C-4026-A701-DF1DD602E54E" Version="1.1.2.0" />
   <mp:PhoneIdentity PhoneProductId="615783de-0c29-471b-b08a-adc462e3be8e" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>Radame</DisplayName>
+    <DisplayName>雨雲レーダー</DisplayName>
     <PublisherDisplayName>PORING SOFT ORG</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,9 +15,8 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Radame.App">
-      <uap:VisualElements DisplayName="Radame" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Radame" BackgroundColor="transparent">
-        <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png" />
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png" ShortName="Radame">
+      <uap:VisualElements DisplayName="雨雲レーダー" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="雨雲レーダー" BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png" ShortName="雨雲レーダー">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo" />
             <uap:ShowOn Tile="wide310x150Logo" />

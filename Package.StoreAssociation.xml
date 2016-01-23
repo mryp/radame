@@ -358,11 +358,13 @@
     <Language Code="zu-za" InMinimumRequirementSet="true" />
   </SupportedLocales>
   <ProductReservedInfo>
-    <MainPackageIdentityName>47117PORINGSOFTORG.Radame</MainPackageIdentityName>
+    <MainPackageIdentityName>47117PORINGSOFTORG.1658A2A66C43</MainPackageIdentityName>
     <ReservedNames>
-      <ReservedName>Radame</ReservedName>
+      <ReservedName>雨雲レーダー</ReservedName>
     </ReservedNames>
   </ProductReservedInfo>
-  <AccountPackageIdentityNames />
-  <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH5GDBX" />
+  <AccountPackageIdentityNames>
+    <MainPackageIdentityName>47117PORINGSOFTORG.Radame</MainPackageIdentityName>
+  </AccountPackageIdentityNames>
+  <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH5GLW3" />
 </StoreAssociation>
