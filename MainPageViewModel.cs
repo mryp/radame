@@ -24,7 +24,9 @@ namespace Radame
         private const string NOW_CAST_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/nowcast";
         private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
         private const int AREA_CODE = 211;
-        
+
+        private const int DEF_INIT_WAIT_TIME = 1000;
+
         /// <summary>
         /// フォルダ・ファイルリスト
         /// </summary>
@@ -98,12 +100,42 @@ namespace Radame
         }
 
         /// <summary>
+        /// データをすべてクリアーする
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> InitClear()
+        {
+            return await InitClear(DEF_INIT_WAIT_TIME);
+        }
+
+        /// <summary>
+        /// データをすべてクリアーする
+        /// </summary>
+        /// <param name="waitTime">処理待ち時間</param>
+        /// <returns></returns>
+        public async Task<int> InitClear(int waitTime)
+        {
+            this.ItemList.Clear();
+            this.IsLoading = true;
+            this.Title = createTitleName("");
+            if (waitTime > 0)
+            {
+                //ピボット切り替え直後にクリアーすると画像が表示されないことがあるため少し待つ
+                await Task.Delay(waitTime);
+            }
+
+            return waitTime;
+        }
+
+        /// <summary>
         /// データ取得
         /// </summary>
         public async void Init()
         {
-            this.ItemList.Clear();
-            this.Title = Windows.ApplicationModel.Package.Current.DisplayName;
+            if (m_itemList.Count > 0)
+            {
+                await this.InitClear();
+            }
 
             PivotItem latestItem = await getLatestItem();
             if (latestItem == null)
@@ -124,17 +156,33 @@ namespace Radame
                     }
                 }
             }
-
-            this.Title = Windows.ApplicationModel.Package.Current.DisplayName 
-                + " - " + DateTime.Now.ToString("MM/dd HH:mm") + "取得";
+            
+            this.Title = createTitleName(DateTime.Now.ToString("MM/dd HH:mm") + "取得");
         }
 
+        /// <summary>
+        /// 取得失敗表示
+        /// </summary>
         private void initError()
         {
-            this.ItemList.Clear();
-            this.Title = Windows.ApplicationModel.Package.Current.DisplayName 
-                + " - データ取得エラー";
+            this.Title = createTitleName("データ取得エラー");
             this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// タイトルバーに表示する文字列を生成する
+        /// </summary>
+        /// <param name="addText">アプリ名の後ろにつける文字列（不要なときは空文字を指定）</param>
+        /// <returns></returns>
+        private string createTitleName(string addText)
+        {
+            string title = Windows.ApplicationModel.Package.Current.DisplayName;
+            if (!string.IsNullOrEmpty(addText))
+            {
+                title += " - " + addText;
+            }
+
+            return title;
         }
 
         /// <summary>

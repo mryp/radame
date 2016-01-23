@@ -161,11 +161,13 @@ namespace Radame
         {
             if (reload == false && m_imageData != null)
             {
+                Debug.WriteLine("SetImage already");
                 return; //すでに格納済みのため何もしない
             }
             
             try
             {
+                Debug.WriteLine("SetImage start reload=" + reload.ToString());
                 BitmapImage image = new BitmapImage(new Uri(m_imageUrl));
                 image.ImageOpened += (sender, e) =>
                 {
@@ -188,6 +190,7 @@ namespace Radame
 
                     this.Width = width;
                     this.Height = height;
+                    Debug.WriteLine("画像読み込み完了 width=" + width.ToString() + " height=" + height.ToString());
                 };
                 image.ImageFailed += (sender, e) =>
                 {
@@ -195,6 +198,7 @@ namespace Radame
                     setErrorImage();
                 };
                 this.ImageData = image;
+                Debug.WriteLine("SetImage finish");
             }
             catch (Exception e)
             {

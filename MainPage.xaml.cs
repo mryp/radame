@@ -129,17 +129,20 @@ namespace Radame
         /// データを更新する
         /// </summary>
         /// <param name="isTimeCheck"></param>
-        private void updateTask(bool isTimeCheck)
+        private async void updateTask(bool isTimeCheck)
         {
             if (isTimeCheck)
             {
                 if (m_lastReloadTime > DateTime.Now.AddMinutes(0 - NO_REALOAD_MINUTE).Ticks)
                 {
                     //更新がチェックしない範囲なので更新しない
+                    Debug.WriteLine("updateTask nocheck");
                     return;
                 }
             }
 
+            Debug.WriteLine("updateTask");
+            await this.ViewModel.InitClear();
             m_lastReloadTime = DateTime.Now.Ticks;
             this.ViewModel.Init();
         }
@@ -172,7 +175,7 @@ namespace Radame
         private void imagePivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Debug.WriteLine("imagePivot_SelectionChanged");
-            updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, true);
+            //updateImage(imagePivot.SelectedItem as PivotItem, m_contentSize, false);
         }
 
         /// <summary>
@@ -199,7 +202,7 @@ namespace Radame
                 return;
             }
 
-            Debug.WriteLine("updateImage size=" + contentSize);
+            Debug.WriteLine("updateImage item=" + item.Name);
             item.SetImage(contentSize.Value, reload);
             this.ViewModel.IsLoading = false;
         }
