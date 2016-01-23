@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 
 namespace Radame
 {
@@ -44,6 +45,7 @@ namespace Radame
 
         private string m_areaCodeSelectedCode = "";
         private ObservableCollection<AreaCodeItem> m_areaCodeList = new ObservableCollection<AreaCodeItem>();
+        private string m_versionInfo = "";
         
         /// <summary>
         /// 現在選択しているエリアコード
@@ -84,6 +86,22 @@ namespace Radame
             }
         }
 
+        public string VersionInfo
+        {
+            get
+            {
+                return m_versionInfo;
+            }
+            set
+            {
+                if (value != m_versionInfo)
+                {
+                    m_versionInfo = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// 初期化
         /// </summary>
@@ -95,6 +113,11 @@ namespace Radame
                 this.AreaCodeList.Add(item);
             }
             this.AreaCodeSelectedCode = AppSettings.Current.AreaCode;
+
+            PackageVersion versionInfo = Package.Current.Id.Version;
+            this.VersionInfo = String.Format("{0} version {1}.{2}.{3}.{4}"
+                , Package.Current.DisplayName
+                , versionInfo.Major, versionInfo.Minor, versionInfo.Build, versionInfo.Revision);
         }
         
         #region INotifyPropertyChanged member

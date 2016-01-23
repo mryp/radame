@@ -14,9 +14,6 @@
                 <AppBarButton Icon="Sync" Label="更新" Click="SyncButton_Click" />
                 <AppBarButton Icon="Setting" Label="設定" Click="SettingButton_Click" />
             </CommandBar.PrimaryCommands>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Help" Label="バージョン情報" Click="VersionInfoButton_Click" />
-            </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
 
@@ -60,9 +57,6 @@
                     <AppBarButton Icon="Sync" Label="更新" Click="SyncButton_Click" />
                     <AppBarButton Icon="Setting" Label="設定" Click="SettingButton_Click" />
                 </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                    <AppBarButton Icon="Help" Label="バージョン情報" Click="VersionInfoButton_Click" />
-                </CommandBar.SecondaryCommands>
                 <CommandBar.Content>
                     <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
                         <TextBlock Text="{Binding Title}" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>

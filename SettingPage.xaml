@@ -20,7 +20,9 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                          HorizontalScrollBarVisibility="Auto" 
+                          PointerReleased="ScrollViewer_PointerReleased">
                 <StackPanel Padding="16">
                     <TextBlock FontSize="24" Margin="0,0,0,8">地方設定</TextBlock>
                     <ComboBox Name="AreaComboBox" 
@@ -33,7 +35,7 @@
                     </ComboBox>
 
                     <TextBlock FontSize="24" Margin="0,24,8,0">バージョン情報</TextBlock>
-                    <TextBlock x:Name="VersionInfo">Radame version 1.0.0.0</TextBlock>
+                    <TextBlock x:Name="VersionInfo" Text="{Binding VersionInfo}" />
                     <TextBlock>(c) 2016 PORING SOFT</TextBlock>
                 </StackPanel>
             </ScrollViewer>

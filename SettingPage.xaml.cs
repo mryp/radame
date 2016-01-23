@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -22,12 +23,18 @@ namespace Radame
     /// </summary>
     public sealed partial class SettingPage : Page
     {
+        /// <summary>
+        /// ビューモデル
+        /// </summary>
         public SettingPageModelView ViewModel
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public SettingPage()
         {
             this.InitializeComponent();
@@ -47,6 +54,7 @@ namespace Radame
                 AppViewBackButtonVisibility.Visible :
                 AppViewBackButtonVisibility.Collapsed;
             SystemNavigationManager.GetForCurrentView().BackRequested += SettingPage_BackRequested;
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
             this.ViewModel.Init();
             this.DataContext = this.ViewModel;
@@ -61,6 +69,24 @@ namespace Radame
             base.OnNavigatedFrom(e);
 
             SystemNavigationManager.GetForCurrentView().BackRequested -= SettingPage_BackRequested;
+            Window.Current.CoreWindow.KeyDown -= CoreWindow_KeyDown;
+        }
+
+        /// <summary>
+        /// 前の画面に戻る
+        /// </summary>
+        /// <returns></returns>
+        private bool goBack()
+        {
+            if (this.Frame.CanGoBack)
+            {
+                this.Frame.GoBack();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -76,21 +102,37 @@ namespace Radame
             }
         }
 
-        private bool goBack()
+        /// <summary>
+        /// キーボード入力イベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (this.Frame.CanGoBack)
+            switch (args.VirtualKey)
             {
-                this.Frame.GoBack();
-                return true;
+                case Windows.System.VirtualKey.Back:
+                    if (goBack())
+                    {
+                        args.Handled = true;
+                    }
+                    break;
             }
-            else
-            {
-                return false;
-            }            
         }
-
-        private void initAreaComboBoxSelection()
+        
+        /// <summary>
+        /// マウスボタンを押下したとき
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScrollViewer_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            Pointer pointer = e.Pointer;
+            PointerPoint point = e.GetCurrentPoint(sender as ScrollViewer);
+            if (point.Properties.PointerUpdateKind == PointerUpdateKind.XButton1Released)
+            {
+                goBack();
+            }
         }
     }
 }

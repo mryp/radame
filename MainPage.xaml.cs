@@ -15,12 +15,10 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409 を参照してください
-
 namespace Radame
 {
     /// <summary>
-    /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+    /// 雨雲レーダーを表示するメイン画面
     /// </summary>
     public sealed partial class MainPage : Page
     {
@@ -28,11 +26,6 @@ namespace Radame
         /// データ更新の最小時間（分）
         /// </summary>
         private const int NO_REALOAD_MINUTE = 5;
-
-        /// <summary>
-        /// 拡大倍率
-        /// </summary>
-        private const double SCALE_VALUE = 2.0;
 
         /// <summary>
         /// 最終更新時間
@@ -159,14 +152,14 @@ namespace Radame
             updateTask(false);
         }
 
+        /// <summary>
+        /// 設定画面を表示する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SettingButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(SettingPage));
-        }
-
-        private void VersionInfoButton_Click(object sender, RoutedEventArgs e)
-        {
-
         }
         
         /// <summary>
