@@ -161,6 +161,16 @@ namespace Radame
         {
             this.Frame.Navigate(typeof(SettingPage));
         }
+
+        /// <summary>
+        /// タイルを作成する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SecondaryCreate_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(CreateTilePage));
+        }
         
         /// <summary>
         /// ピボット位置を変更した時
