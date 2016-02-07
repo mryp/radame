@@ -25,17 +25,21 @@
                           PointerReleased="ScrollViewer_PointerReleased">
                 <StackPanel Padding="16">
                     <TextBlock FontSize="24" Margin="0,0,0,8">中タイル</TextBlock>
-                    <Border BorderBrush="Black" HorizontalAlignment="Left" BorderThickness="1" Width="150" Height="150">
-                        <ScrollViewer x:Name="middleSizeImageScrollViewr"  ZoomMode="Enabled" 
-                                          SizeChanged="middleSizeImageScrollViewr_SizeChanged"
-                                          VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Auto"
-                                          MinZoomFactor="0.5" 
-                                          MaxZoomFactor="8">
-                            <Image Source="http://www.jma.go.jp/jp/radnowc/imgs/radar/211/201602042250-00.png" />
+                    <Border x:Name="middleTileBorder"
+                            BorderBrush="Black" 
+                            HorizontalAlignment="Left" 
+                            BorderThickness="1" 
+                            Width="150" Height="150">
+                        <ScrollViewer x:Name="middleSizeImageScrollViewr"  
+                                      ZoomMode="Enabled" 
+                                      SizeChanged="middleSizeImageScrollViewr_SizeChanged"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      MinZoomFactor="0.5" MaxZoomFactor="8">
+                            <Image Source="{x:Bind ViewModel.MiddleTileItem.ImageData}" />
                         </ScrollViewer>
                     </Border>
-                    <Button Margin="0,8,0,8">タイル作成</Button>
+                    <Button Margin="0,8,0,8" Click="MiddleTileCreateButton_Click">タイル作成</Button>
                     
                     <TextBlock FontSize="24" Margin="0,24,8,8">横長タイル</TextBlock>
                     <Border BorderBrush="Black"  HorizontalAlignment="Left" BorderThickness="1" Width="310" Height="150">
@@ -45,10 +49,10 @@
                                           HorizontalScrollBarVisibility="Auto"
                                           MinZoomFactor="0.5" 
                                           MaxZoomFactor="8">
-                            <Image Source="http://www.jma.go.jp/jp/radnowc/imgs/radar/211/201602042250-00.png" />
+                            <Image Source="{x:Bind ViewModel.WideTileItem.ImageData}" />
                         </ScrollViewer>
                     </Border>
-                    <Button Margin="0,8,0,8">タイル作成</Button>
+                    <Button Margin="0,8,0,8" Click="WideTileCreateButton_Click">タイル作成</Button>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

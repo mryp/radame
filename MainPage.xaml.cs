@@ -169,7 +169,7 @@ namespace Radame
         /// <param name="e"></param>
         private void SecondaryCreate_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(CreateTilePage));
+            this.Frame.Navigate(typeof(CreateTilePage), ViewModel.ItemList[0].ImageUrl);
         }
         
         /// <summary>

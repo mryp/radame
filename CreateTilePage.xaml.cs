@@ -1,18 +1,29 @@
-﻿using System;
+﻿using NotificationsExtensions.Tiles;
+using NotificationsExtensions.Toasts;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Background;
+using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Display;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Input;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace Radame
@@ -55,7 +66,10 @@ namespace Radame
             SystemNavigationManager.GetForCurrentView().BackRequested += SettingPage_BackRequested;
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
-            this.ViewModel.Init();
+            string imageUrl = e.Parameter as string;
+            Debug.WriteLine("imageUrl=" + imageUrl);
+
+            this.ViewModel.Init(imageUrl);
             this.DataContext = this.ViewModel;
         }
 
@@ -142,6 +156,88 @@ namespace Radame
         private void wideSizeImageScrollViewr_SizeChanged(object sender, SizeChangedEventArgs e)
         {
 
+        }
+
+        private async void MiddleTileCreateButton_Click(object sender, RoutedEventArgs e)
+        {
+            var status = await BackgroundExecutionManager.RequestAccessAsync();
+            if (status != BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
+            || status == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
+            {
+                return;
+            }
+
+            string taskName = "LiveTileUpdateTask";
+            foreach (var task in BackgroundTaskRegistration.AllTasks)
+            {
+                if (task.Value.Name == taskName)
+                {
+                    task.Value.Unregister(true);
+                }
+            }
+
+            BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
+            builder.Name = taskName;
+            builder.TaskEntryPoint = "RadameBgTask.LiveTileUpdateTask";
+            builder.SetTrigger(new TimeTrigger(15, false));
+            builder.Register();
+            /*
+            TileContent content = new TileContent()
+            {
+                Visual = new TileVisual()
+                {
+                    TileMedium = new TileBinding()
+                    {
+                        Content = new TileBindingContentAdaptive()
+                        {
+                            Children =
+                            {
+                                new TileText() { Text = "Medium " + DateTime.Now.ToString("HH:mm:ss") }
+                            }
+                        }
+                    },
+
+                    TileWide = new TileBinding()
+                    {
+                        Content = new TileBindingContentAdaptive()
+                        {
+                            Children =
+                            {
+                                new TileText() { Text = "Wide " + DateTime.Now.ToString("HH:mm:ss") }
+                            }
+                        }
+                    },
+                }
+            };
+
+            XmlDocument doc = content.GetXml();
+            TileNotification tileNotification = new TileNotification(doc);
+            TileUpdateManager.CreateTileUpdaterForApplication().Update(tileNotification);
+            */
+        }
+
+        private void WideTileCreateButton_Click(object sender, RoutedEventArgs e)
+        {
+            /*
+            ToastContent content = new ToastContent()
+            {
+                Visual = new ToastVisual()
+                {
+                    TitleText = new ToastText()
+                    {
+                        Text = "Title",
+                    },
+                    BodyTextLine1 = new ToastText()
+                    {
+                        Text = "Body",
+                    }
+                },
+            };
+
+            XmlDocument doc = content.GetXml();
+            ToastNotification toastNotification = new ToastNotification(doc);
+            ToastNotificationManager.CreateToastNotifier().Show(toastNotification);
+            */
         }
     }
 }
