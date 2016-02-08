@@ -1,5 +1,6 @@
 ﻿using NotificationsExtensions.Tiles;
 using NotificationsExtensions.Toasts;
+using RadameBgTask;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -158,86 +159,13 @@ namespace Radame
 
         }
 
-        private async void MiddleTileCreateButton_Click(object sender, RoutedEventArgs e)
+        private void MiddleTileCreateButton_Click(object sender, RoutedEventArgs e)
         {
-            var status = await BackgroundExecutionManager.RequestAccessAsync();
-            if (status != BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity
-            || status == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
-            {
-                return;
-            }
-
-            string taskName = "LiveTileUpdateTask";
-            foreach (var task in BackgroundTaskRegistration.AllTasks)
-            {
-                if (task.Value.Name == taskName)
-                {
-                    task.Value.Unregister(true);
-                }
-            }
-
-            BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
-            builder.Name = taskName;
-            builder.TaskEntryPoint = "RadameBgTask.LiveTileUpdateTask";
-            builder.SetTrigger(new TimeTrigger(15, false));
-            builder.Register();
-            /*
-            TileContent content = new TileContent()
-            {
-                Visual = new TileVisual()
-                {
-                    TileMedium = new TileBinding()
-                    {
-                        Content = new TileBindingContentAdaptive()
-                        {
-                            Children =
-                            {
-                                new TileText() { Text = "Medium " + DateTime.Now.ToString("HH:mm:ss") }
-                            }
-                        }
-                    },
-
-                    TileWide = new TileBinding()
-                    {
-                        Content = new TileBindingContentAdaptive()
-                        {
-                            Children =
-                            {
-                                new TileText() { Text = "Wide " + DateTime.Now.ToString("HH:mm:ss") }
-                            }
-                        }
-                    },
-                }
-            };
-
-            XmlDocument doc = content.GetXml();
-            TileNotification tileNotification = new TileNotification(doc);
-            TileUpdateManager.CreateTileUpdaterForApplication().Update(tileNotification);
-            */
+            LiveTileUpdateTask.RegistTileUpdateTask(30);
         }
 
         private void WideTileCreateButton_Click(object sender, RoutedEventArgs e)
         {
-            /*
-            ToastContent content = new ToastContent()
-            {
-                Visual = new ToastVisual()
-                {
-                    TitleText = new ToastText()
-                    {
-                        Text = "Title",
-                    },
-                    BodyTextLine1 = new ToastText()
-                    {
-                        Text = "Body",
-                    }
-                },
-            };
-
-            XmlDocument doc = content.GetXml();
-            ToastNotification toastNotification = new ToastNotification(doc);
-            ToastNotificationManager.CreateToastNotifier().Show(toastNotification);
-            */
         }
     }
 }
