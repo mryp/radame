@@ -105,7 +105,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource("http://www.jma.go.jp/jp/radnowc/imgs/radar/211/201602082110-00.png"),
+                                Source = new TileImageSource(url),
                                 Overlay = 0,
                             },
                         }
@@ -118,7 +118,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource("http://www.jma.go.jp/jp/radnowc/imgs/radar/211/201602082110-00.png"),
+                                Source = new TileImageSource(url),
                                 Overlay = 0,
                             },
                         }
@@ -131,7 +131,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource("http://www.jma.go.jp/jp/radnowc/imgs/radar/211/201602082110-00.png"),
+                                Source = new TileImageSource(url),
                                 Overlay = 0,
                             },
                         }
