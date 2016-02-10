@@ -3,21 +3,29 @@ using NotificationsExtensions.Toasts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Data.Xml.Dom;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RadameBgTask
 {
+    //参考：http://ayano.hateblo.jp/entry/2014/10/10/204847
     public sealed class LiveTileUpdateTask : IBackgroundTask
     {
         private const string RADAR_JS_URL = "http://www.jma.go.jp/jp/radnowc/hisjs/radar.js";
         private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
+        private const string RADAR_LOCAL_FILE_NAME = "radame.png";
 
         private BackgroundTaskDeferral m_deferral;
 
@@ -91,8 +99,17 @@ namespace RadameBgTask
         {
             string url = await getLatestImageUrl();
             string nowTime = DateTime.Now.ToString("HH:mm") + "更新";
+            StorageFile imageFile = await getHttpFile(url, RADAR_LOCAL_FILE_NAME);
+            if (imageFile == null)
+            {
+                return;
+            }
 
-            Debug.WriteLine("updateTime time=" + nowTime + " url=" + url);
+            Debug.WriteLine("updateTile imageFile.Path=" + imageFile.Path);
+            StorageFile mediumImage = await resizeBitmap(imageFile, 150, 150);
+            StorageFile wideImage = await resizeBitmap(imageFile, 310, 150);
+
+            Debug.WriteLine("updateTile time=" + nowTime + " url=" + url);
 
             TileContent content = new TileContent()
             {
@@ -105,7 +122,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource(url),
+                                Source = new TileImageSource(mediumImage.Path),
                                 Overlay = 0,
                             },
                         }
@@ -118,7 +135,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource(url),
+                                Source = new TileImageSource(wideImage.Path),
                                 Overlay = 0,
                             },
                         }
@@ -131,7 +148,7 @@ namespace RadameBgTask
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
-                                Source = new TileImageSource(url),
+                                Source = new TileImageSource(imageFile.Path),
                                 Overlay = 0,
                             },
                         }
@@ -188,6 +205,34 @@ namespace RadameBgTask
             return text;
         }
 
+        private static async Task<StorageFile> getHttpFile(string url, string fileName)
+        {
+            StorageFile saveFile = null;
+            try
+            {
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    byte[] data = await httpClient.GetByteArrayAsync(new Uri(url));
+                    StorageFolder folder = getLocalFolder();
+                    saveFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteBytesAsync(saveFile, data);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("getHttpFile e=" + e.Message);
+                return null;
+            }
+
+            return saveFile;
+        }
+
+        public static StorageFolder getLocalFolder()
+        {
+            return ApplicationData.Current.LocalFolder;
+        }
+
+
         private static string getFileNameFromJsonData(string line)
         {
             string[] splitItems = line.Split('"');
@@ -197,6 +242,52 @@ namespace RadameBgTask
             }
 
             return splitItems[1];
+        }
+
+        private static async Task<StorageFile> resizeBitmap(StorageFile file, int width, int height)
+        {
+            WriteableBitmap wb;
+            using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                wb = await BitmapFactory.New(1, 1).FromStream(stream);
+            }
+            WriteableBitmap croppedWb = wb.Crop(0, 0, width, height);
+            
+            //ファイルに保存
+            StorageFolder folder = getLocalFolder();
+            string fileName = "radame_" + width.ToString() + "x" + height.ToString() + ".png";
+            StorageFile saveFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            Debug.WriteLine("resizeBitmap path=" + saveFile.Path);
+
+            await saveToPngFile(croppedWb, saveFile);
+            return saveFile;
+        }
+
+        private static async Task saveToPngFile(WriteableBitmap writeableBitmap, StorageFile outputFile)
+        {
+            Guid encoderId = BitmapEncoder.PngEncoderId;
+            Stream stream = writeableBitmap.PixelBuffer.AsStream();
+            byte[] pixels = new byte[(uint)stream.Length];
+            await stream.ReadAsync(pixels, 0, pixels.Length);
+
+            using (IRandomAccessStream writeStream = await outputFile.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(encoderId, writeStream);
+                encoder.SetPixelData(
+                    BitmapPixelFormat.Rgba8,
+                    BitmapAlphaMode.Ignore,
+                    (uint)writeableBitmap.PixelWidth,
+                    (uint)writeableBitmap.PixelHeight,
+                    96,
+                    96,
+                    pixels);
+                await encoder.FlushAsync();
+
+                using (IOutputStream outputStream = writeStream.GetOutputStreamAt(0))
+                {
+                    await outputStream.FlushAsync();
+                }
+            }
         }
     }
 }
