@@ -119,6 +119,7 @@
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingPageModelView.cs" />
+    <Compile Include="UpdateIntervalItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

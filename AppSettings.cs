@@ -40,6 +40,96 @@ namespace Radame
                 OnPropertyChanged();
             }
         }
+        
+        /// <summary>
+        /// タイル更新間隔時間（分）
+        /// </summary>
+        public int TileUpdateTime
+        {
+            get { return GetValue<int>(30, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
 
+        /// <summary>
+        /// 中タイルの横オフセット
+        /// </summary>
+        public int MiddleTileHorizontalOffset
+        {
+            get { return GetValue<int>(0, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 中タイルの縦オフセット
+        /// </summary>
+        public int MiddleTileVerticalOffset
+        {
+            get { return GetValue<int>(0, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 中タイルの拡大率
+        /// </summary>
+        public float MiddleTileZoomFactor
+        {
+            get { return GetValue<float>(1.0f, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 横長タイルの横オフセット
+        /// </summary>
+        public int WideTileHorizontalOffset
+        {
+            get { return GetValue<int>(0, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 横長タイルの縦オフセット
+        /// </summary>
+        public int WideTileVerticalOffset
+        {
+            get { return GetValue<int>(0, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 横長タイルの拡大率
+        /// </summary>
+        public float WideTileZoomFactor
+        {
+            get { return GetValue<float>(1.0f, ContainerType.Roaming); }
+            set
+            {
+                SetValue(value, ContainerType.Roaming);
+                OnPropertyChanged();
+            }
+        }
     }
 }

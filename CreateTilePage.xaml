@@ -7,13 +7,63 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <!-- 画面下部のコマンドバー（モバイル用） -->
+    <Page.BottomAppBar>
+        <CommandBar x:Name="bottomAppBar" Visibility="Visible" >
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Sync" Label="更新" Click="TileCreateButton_Click" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!-- トリガーによる表示状態変更 -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="bottomAppBar.Visibility" Value="Collapsed" />
+                        <Setter Target="topAppBar.Visibility" Value="Visible" />
+                        <Setter Target="titleOnlyBar.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="bottomAppBar.Visibility" Value="Visible" />
+                        <Setter Target="topAppBar.Visibility" Value="Collapsed" />
+                        <Setter Target="titleOnlyBar.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" x:Name="titleOnlyBar" Visibility="Visible" >
+        <!-- タイトルとコマンドボタンを表示するバー -->
+        <Grid Grid.Row="0">
+            <CommandBar x:Name="topAppBar" Visibility="Visible" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" >
+                <CommandBar.PrimaryCommands>
+                    <AppBarButton Icon="Sync" Label="更新" Click="TileCreateButton_Click" />
+                </CommandBar.PrimaryCommands>
+                <CommandBar.Content>
+                    <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
+                        <TextBlock Text="{Binding Title}" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    </Border>
+                </CommandBar.Content>
+            </CommandBar>
+        </Grid>
+        <!-- タイトルのみを表示するバー -->
+        <Grid Grid.Row="0" x:Name="titleOnlyBar" Visibility="Collapsed" >
             <Border Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}" Height="48">
                 <TextBlock Text="タイル作成" Style="{ThemeResource PageTitleTextBlockStyle}" TextWrapping="NoWrap"/>
             </Border>
@@ -31,28 +81,46 @@
                             BorderThickness="1" 
                             Width="150" Height="150">
                         <ScrollViewer x:Name="middleSizeImageScrollViewr"  
-                                      ZoomMode="Enabled" 
-                                      SizeChanged="middleSizeImageScrollViewr_SizeChanged"
                                       VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Auto"
-                                      MinZoomFactor="0.5" MaxZoomFactor="8">
-                            <Image Source="{x:Bind ViewModel.MiddleTileItem.ImageData}" />
+                                      ZoomMode="Enabled"
+                                      MinZoomFactor="{x:Bind ViewModel.MinZoomFactor}" 
+                                      MaxZoomFactor="{x:Bind ViewModel.MaxZoomFactor}">
+                            <Image Source="{x:Bind ViewModel.MiddleTileItem.ImageData}"
+                                   ImageOpened="middleImage_ImageOpened"/>
                         </ScrollViewer>
                     </Border>
-                    <Button Margin="0,8,0,8" Click="MiddleTileCreateButton_Click">タイル作成</Button>
+                    <StackPanel Orientation="Horizontal" Padding="8">
+                        <Button Margin="0,0,8,0" Click="middleImageScaleUpButton_Click">拡大</Button>
+                        <Button Margin="0" Click="middleImageScaleDownButton_Click">縮小</Button>
+                    </StackPanel>
                     
                     <TextBlock FontSize="24" Margin="0,24,8,8">横長タイル</TextBlock>
                     <Border BorderBrush="Black"  HorizontalAlignment="Left" BorderThickness="1" Width="310" Height="150">
-                        <ScrollViewer x:Name="wideSizeImageScrollViewr"  ZoomMode="Enabled" 
-                                          SizeChanged="wideSizeImageScrollViewr_SizeChanged"
-                                          VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Auto"
-                                          MinZoomFactor="0.5" 
-                                          MaxZoomFactor="8">
-                            <Image Source="{x:Bind ViewModel.WideTileItem.ImageData}" />
+                        <ScrollViewer x:Name="wideSizeImageScrollViewr"  
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      ZoomMode="Enabled"
+                                      MinZoomFactor="{x:Bind ViewModel.MinZoomFactor}" 
+                                      MaxZoomFactor="{x:Bind ViewModel.MaxZoomFactor}">
+                            <Image Source="{x:Bind ViewModel.WideTileItem.ImageData}"
+                                   ImageOpened="wideImage_ImageOpened"/>
                         </ScrollViewer>
                     </Border>
-                    <Button Margin="0,8,0,8" Click="WideTileCreateButton_Click">タイル作成</Button>
+                    <StackPanel Orientation="Horizontal" Padding="8">
+                        <Button Margin="0,0,8,0" Click="wideImageScaleUpButton_Click">拡大</Button>
+                        <Button Margin="0" Click="wideImageScaleDownButton_Click">縮小</Button>
+                    </StackPanel>
+
+                    <TextBlock FontSize="24" Margin="0,24,8,8">更新間隔</TextBlock>
+                    <ComboBox Name="AreaComboBox" 
+                              Header="タイルの更新を行う間隔" 
+                              Width="200"
+                              ItemsSource="{x:Bind ViewModel.UpdateIntervalList}"
+                              SelectedValue="{x:Bind ViewModel.UpdateIntervalSelected, Mode=TwoWay}"
+                              SelectedValuePath="IntervalTime" 
+                              DisplayMemberPath="Name">
+                    </ComboBox>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

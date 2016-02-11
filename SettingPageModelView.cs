@@ -86,6 +86,9 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// バージョン情報
+        /// </summary>
         public string VersionInfo
         {
             get

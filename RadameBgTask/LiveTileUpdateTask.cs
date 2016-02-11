@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Data.Xml.Dom;
+using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -20,25 +21,60 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RadameBgTask
 {
-    //参考：http://ayano.hateblo.jp/entry/2014/10/10/204847
-    public sealed class LiveTileUpdateTask : IBackgroundTask
+    /// <summary>
+    /// ライブタイル作成クラス
+    /// </summary>
+    public sealed class LiveTileUpdateTask : XamlRenderingBackgroundTask
     {
+        /// <summary>
+        /// 画像の位置情報クラス
+        /// </summary>
+        private class ImagePosition
+        {
+            public float ZoomFactor
+            {
+                get;
+                set;
+            }
+
+            public int HorizontalOffset
+            {
+                get;
+                set;
+            }
+
+            public int VerticalOffset
+            {
+                get;
+                set;
+            }
+        }
+
         private const string RADAR_JS_URL = "http://www.jma.go.jp/jp/radnowc/hisjs/radar.js";
         private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
         private const string RADAR_LOCAL_FILE_NAME = "radame.png";
 
         private BackgroundTaskDeferral m_deferral;
-
-        public async void Run(IBackgroundTaskInstance taskInstance)
+        private static AsyncLock m_asyncLock = new AsyncLock();
+        
+        /// <summary>
+        /// ライブタイル更新起動
+        /// </summary>
+        /// <param name="taskInstance"></param>
+        protected async override void OnRun(IBackgroundTaskInstance taskInstance)
         {
             m_deferral = taskInstance.GetDeferral();
-            
+
             //更新処理開始
             await updateTile();
 
             m_deferral.Complete();
         }
 
+        /// <summary>
+        /// トールそth幼児
+        /// </summary>
+        /// <param name="text"></param>
         private void showToast(string text)
         {
 
@@ -95,9 +131,55 @@ namespace RadameBgTask
             return;
         }
 
+        /// <summary>
+        /// アプリ設定からエリアコードを取得する
+        /// </summary>
+        /// <returns></returns>
+        private static string getSettingAreaCode()
+        {
+            return (string)ApplicationData.Current.RoamingSettings.Values["AreaCode"];
+        }
+
+        /// <summary>
+        /// アプリ設定から中タイルに表示する画像の位置情報を取得する
+        /// </summary>
+        /// <returns></returns>
+        private static ImagePosition getSettingMiddleTilePosition()
+        {
+            ImagePosition pos = new ImagePosition()
+            {
+                HorizontalOffset = (int)ApplicationData.Current.RoamingSettings.Values["MiddleTileHorizontalOffset"],
+                VerticalOffset = (int)ApplicationData.Current.RoamingSettings.Values["MiddleTileVerticalOffset"],
+                ZoomFactor = (float)ApplicationData.Current.RoamingSettings.Values["MiddleTileZoomFactor"],
+            };
+
+            return pos;
+        }
+
+        /// <summary>
+        /// アプリ設定から横長タイルに表示する画像の位置情報を取得する
+        /// </summary>
+        /// <returns></returns>
+        private static ImagePosition getSettingWideTilePosition()
+        {
+            ImagePosition pos = new ImagePosition()
+            {
+                HorizontalOffset = (int)ApplicationData.Current.RoamingSettings.Values["WideTileHorizontalOffset"],
+                VerticalOffset = (int)ApplicationData.Current.RoamingSettings.Values["WideTileVerticalOffset"],
+                ZoomFactor = (float)ApplicationData.Current.RoamingSettings.Values["WideTileZoomFactor"],
+            };
+
+            return pos;
+        }
+
+        /// <summary>
+        /// ライブタイルの画像を生成しタイルに設定し直す
+        /// </summary>
+        /// <returns></returns>
         private static async Task updateTile()
         {
-            string url = await getLatestImageUrl();
+            ///最新のレーダー画像を取得
+            string url = await getLatestImageUrl(getSettingAreaCode());
             string nowTime = DateTime.Now.ToString("HH:mm") + "更新";
             StorageFile imageFile = await getHttpFile(url, RADAR_LOCAL_FILE_NAME);
             if (imageFile == null)
@@ -105,12 +187,15 @@ namespace RadameBgTask
                 return;
             }
 
+            //設定された位置の画像を生成する
             Debug.WriteLine("updateTile imageFile.Path=" + imageFile.Path);
-            StorageFile mediumImage = await resizeBitmap(imageFile, 150, 150);
-            StorageFile wideImage = await resizeBitmap(imageFile, 310, 150);
+            StorageFile mediumImage = await resizeBitmap(imageFile, 150, 150
+                , getSettingMiddleTilePosition());
+            StorageFile wideImage = await resizeBitmap(imageFile, 310, 150
+                , getSettingWideTilePosition());
 
+            //タイルXML作成
             Debug.WriteLine("updateTile time=" + nowTime + " url=" + url);
-
             TileContent content = new TileContent()
             {
                 Visual = new TileVisual()
@@ -156,14 +241,19 @@ namespace RadameBgTask
                 }
             };
 
+            //更新設定
             XmlDocument doc = content.GetXml();
             TileNotification tileNotification = new TileNotification(doc);
             TileUpdateManager.CreateTileUpdaterForApplication().Update(tileNotification);
         }
 
-        private static async Task<string> getLatestImageUrl()
+        /// <summary>
+        /// 最新の雨雲画像を取得する
+        /// </summary>
+        /// <param name="areaCode"></param>
+        /// <returns></returns>
+        private static async Task<string> getLatestImageUrl(string areaCode)
         {
-            string areaCode = (string)ApplicationData.Current.RoamingSettings.Values["AreaCode"];
             string resultUrl = "";
             string json = await getHttpText(RADAR_JS_URL);
             string[] lineList = json.Split('\n');
@@ -180,11 +270,23 @@ namespace RadameBgTask
             return resultUrl;
         }
 
+        /// <summary>
+        /// 雨雲レーダーURLを取得する
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="areaCode"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private static string getImageUrl(string baseUrl, string areaCode, string fileName)
         {
             return String.Format("{0}/{1}/{2}", baseUrl, areaCode, fileName);
         }
 
+        /// <summary>
+        /// 指定したURLからデータをダウンロードし文字列として返す
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         private static async Task<string> getHttpText(string url)
         {
             string text = "";
@@ -205,6 +307,12 @@ namespace RadameBgTask
             return text;
         }
 
+        /// <summary>
+        /// 指定したURLからデータをダウンロードしファイルに保存後、ファイル情報を返す
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private static async Task<StorageFile> getHttpFile(string url, string fileName)
         {
             StorageFile saveFile = null;
@@ -227,12 +335,20 @@ namespace RadameBgTask
             return saveFile;
         }
 
+        /// <summary>
+        /// アプリケーション用フォルダ（書き込みに権限不要）を取得する
+        /// </summary>
+        /// <returns></returns>
         public static StorageFolder getLocalFolder()
         {
             return ApplicationData.Current.LocalFolder;
         }
 
-
+        /// <summary>
+        /// レーダー画像列挙データからファイル名を取得する
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private static string getFileNameFromJsonData(string line)
         {
             string[] splitItems = line.Split('"');
@@ -244,14 +360,23 @@ namespace RadameBgTask
             return splitItems[1];
         }
 
-        private static async Task<StorageFile> resizeBitmap(StorageFile file, int width, int height)
+        /// <summary>
+        /// 指定したサイズと位置情報に画像ファイルをリサイズする
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        private static async Task<StorageFile> resizeBitmap(StorageFile file, int width, int height, ImagePosition pos)
         {
             WriteableBitmap wb;
             using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite))
             {
                 wb = await BitmapFactory.New(1, 1).FromStream(stream);
             }
-            WriteableBitmap croppedWb = wb.Crop(0, 0, width, height);
+            WriteableBitmap resizeWb = wb.Resize((int)(wb.PixelWidth * pos.ZoomFactor), (int)(wb .PixelHeight * pos.ZoomFactor), WriteableBitmapExtensions.Interpolation.Bilinear);
+            WriteableBitmap croppedWb = resizeWb.Crop(pos.HorizontalOffset, pos.VerticalOffset, width, height);
             
             //ファイルに保存
             StorageFolder folder = getLocalFolder();
@@ -263,6 +388,12 @@ namespace RadameBgTask
             return saveFile;
         }
 
+        /// <summary>
+        /// PNGファイルとして保存する
+        /// </summary>
+        /// <param name="writeableBitmap"></param>
+        /// <param name="outputFile"></param>
+        /// <returns></returns>
         private static async Task saveToPngFile(WriteableBitmap writeableBitmap, StorageFile outputFile)
         {
             Guid encoderId = BitmapEncoder.PngEncoderId;
