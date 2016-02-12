@@ -200,9 +200,10 @@ namespace RadameBgTask
             {
                 Visual = new TileVisual()
                 {
+                    Branding = TileBranding.None,
+                    //DisplayName = nowTime,
                     TileMedium = new TileBinding()
                     {
-                        DisplayName = nowTime,
                         Content = new TileBindingContentAdaptive()
                         {
                             BackgroundImage = new TileBackgroundImage()
@@ -210,12 +211,15 @@ namespace RadameBgTask
                                 Source = new TileImageSource(mediumImage.Path),
                                 Overlay = 0,
                             },
+                            Children =
+                            {
+                                new TileText() { Text = nowTime }
+                            },
                         }
                     },
 
                     TileWide = new TileBinding()
                     {
-                        DisplayName = nowTime,
                         Content = new TileBindingContentAdaptive()
                         {
                             BackgroundImage = new TileBackgroundImage()
@@ -223,18 +227,25 @@ namespace RadameBgTask
                                 Source = new TileImageSource(wideImage.Path),
                                 Overlay = 0,
                             },
+                            Children =
+                            {
+                                new TileText() { Text = nowTime }
+                            },
                         }
                     },
 
                     TileLarge = new TileBinding()
                     {
-                        DisplayName = nowTime,
                         Content = new TileBindingContentAdaptive()
                         {
                             BackgroundImage = new TileBackgroundImage()
                             {
                                 Source = new TileImageSource(imageFile.Path),
                                 Overlay = 0,
+                            },
+                            Children =
+                            {
+                                new TileText() { Text = nowTime }
                             },
                         }
                     }
