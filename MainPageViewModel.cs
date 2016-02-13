@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RadameBgTask;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,12 +19,9 @@ namespace Radame
     /// </summary>
     public class MainPageViewModel : INotifyPropertyChanged
     {
-        private const string NOW_CAST_JS_URL = "http://www.jma.go.jp/jp/radnowc/hisjs/nowcast.js";
-        private const string RADAR_JS_URL = "http://www.jma.go.jp/jp/radnowc/hisjs/radar.js";
-
-        private const string NOW_CAST_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/nowcast";
-        private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
-
+        /// <summary>
+        /// 読み込み後の反映待ち時間
+        /// </summary>
         private const int DEF_INIT_WAIT_TIME = 1000;
 
         /// <summary>
@@ -190,56 +188,32 @@ namespace Radame
         /// <returns></returns>
         private async Task<PivotItem> getLatestItem()
         {
-            PivotItem item = null;
-            string json = await getHttpText(RADAR_JS_URL);
-            string[] lineList = json.Split('\n');
-            foreach (string line in lineList)
+            RadameItem item = await RadameDataTask.GetLatestItem(getAreaCode());
+            return new PivotItem()
             {
-                string fileName = getFileNameFromJsonData(line);
-                if (!string.IsNullOrEmpty(fileName))
-                {
-                    DateTime time = getDateTimeFromFileName(fileName);
-                    item = new PivotItem()
-                    {
-                        Name = getPivotHeaderText(time),
-                        ImageUrl = getImageUrl(RADAR_BASE_URL, getAreaCode(), fileName),
-                        Time = time,
-                    };
-                    break;
-                }
-            }
-
-            return item;
+                Name = getPivotHeaderText(item.ImageTime.DateTime),
+                ImageUrl = item.ImageUrl,
+                Time = item.ImageTime.DateTime,
+            };
         }
 
-        /// <summary>
-        /// 予測データリストを取得して返す
-        /// </summary>
-        /// <returns></returns>
         private async Task<PivotItem[]> GetNowCastItemList()
         {
-            List<PivotItem> itemList = new List<PivotItem>();
-            string json = await getHttpText(NOW_CAST_JS_URL);
-            string[] lineList = json.Split('\n');
-            foreach (string line in lineList)
+            List<PivotItem> pivotItemList = new List<PivotItem>();
+            IReadOnlyList<RadameItem> radameItemList = await RadameDataTask.GetNowCastItemList(getAreaCode());
+            foreach (RadameItem radameItem in radameItemList)
             {
-                string fileName = getFileNameFromJsonData(line);
-                if (!string.IsNullOrEmpty(fileName))
+                pivotItemList.Add(new PivotItem()
                 {
-                    DateTime time = getDateTimeFromFileName(fileName);
-                    itemList.Add(new PivotItem()
-                    {
-                        Name = getPivotHeaderText(time) + "(予想)",
-                        ImageUrl = getImageUrl(NOW_CAST_BASE_URL, getAreaCode(), fileName),
-                        Time = time,
-                    });
-                }
+                    Name = getPivotHeaderText(radameItem.ImageTime.DateTime) + "(予想)",
+                    ImageUrl = radameItem.ImageUrl,
+                    Time = radameItem.ImageTime.DateTime,
+                });
             }
 
-            itemList.Reverse(); //時系列順にするため一番古いものが最初に来るようにする
-            return itemList.ToArray();
+            return pivotItemList.ToArray();
         }
-
+        
         /// <summary>
         /// 日付からピボットのタイトルヘッダー文字列を生成して返す
         /// </summary>
@@ -262,96 +236,13 @@ namespace Radame
         }
 
         /// <summary>
-        /// 画像ファイル名から日時を取得する
+        /// 現在のエリアコードを取得する
         /// </summary>
-        /// <param name="fileName"></param>
         /// <returns></returns>
-        private DateTime getDateTimeFromFileName(string fileName)
-        {
-            //201601192310-00.png
-            string[] dateItemList = Path.GetFileNameWithoutExtension(fileName).Split('-');
-            if (dateItemList.Length < 2)
-            {
-                return DateTime.MinValue;
-            }
-
-            DateTime output;
-            if (!DateTime.TryParseExact(dateItemList[0], "yyyyMMddHHmm"
-                , System.Globalization.DateTimeFormatInfo.InvariantInfo
-                , System.Globalization.DateTimeStyles.None
-                , out output))
-            {
-                return DateTime.MinValue;
-            }
-            
-            int addTime;
-            if (!int.TryParse(dateItemList[1], out addTime))
-            {
-                return DateTime.MinValue;
-            }
-            
-            return output.AddMinutes(addTime * 5);
-        }
-
         private string getAreaCode()
         {
             return AppSettings.Current.AreaCode;
         }
-        
-        /// <summary>
-        /// 画像URLを取得する
-        /// </summary>
-        /// <param name="baseUrl"></param>
-        /// <param name="areaCode"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        private string getImageUrl(string baseUrl, string areaCode, string fileName)
-        {
-            return String.Format("{0}/{1}/{2}", baseUrl, areaCode, fileName);
-        }
-
-        /// <summary>
-        /// JSONの行文字列からファイル名を取得する
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
-        private string getFileNameFromJsonData(string line)
-        {
-            string[] splitItems = line.Split('"');
-            if (splitItems.Length < 2)
-            {
-                return "";
-            }
-
-            return splitItems[1];
-        }
-
-        /// <summary>
-        /// HTTP通信で文字列をダウンロードする
-        /// 失敗時は空文字を返す
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        private async Task<string> getHttpText(string url)
-        {
-            string text = "";
-            try
-            {
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    HttpResponseMessage message = await httpClient.GetAsync(new Uri(url));
-                    text = await message.Content.ReadAsStringAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("getHttpText e=" + e.Message);
-                text = "";
-            }
-
-            return text;
-        }
-
         #region INotifyPropertyChanged member
 
         public event PropertyChangedEventHandler PropertyChanged;

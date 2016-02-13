@@ -50,12 +50,8 @@ namespace RadameBgTask
             }
         }
 
-        private const string RADAR_JS_URL = "http://www.jma.go.jp/jp/radnowc/hisjs/radar.js";
-        private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
         private const string RADAR_LOCAL_FILE_NAME = "radame.png";
-
         private BackgroundTaskDeferral m_deferral;
-        private static AsyncLock m_asyncLock = new AsyncLock();
         
         /// <summary>
         /// ライブタイル更新起動
@@ -112,7 +108,9 @@ namespace RadameBgTask
                 return;
             }
 
-            string taskName = "LiveTileUpdateTask";
+            
+            string className = typeof(LiveTileUpdateTask).FullName;
+            string taskName = className;
             foreach (var task in BackgroundTaskRegistration.AllTasks)
             {
                 if (task.Value.Name == taskName)
@@ -123,8 +121,9 @@ namespace RadameBgTask
 
             BackgroundTaskBuilder builder = new BackgroundTaskBuilder();
             builder.Name = taskName;
-            builder.TaskEntryPoint = "RadameBgTask.LiveTileUpdateTask";
+            builder.TaskEntryPoint = className;
             builder.SetTrigger(new TimeTrigger(time, false));
+            builder.SetTrigger(new SystemTrigger(SystemTriggerType.InternetAvailable, false));
             builder.Register();
 
             await updateTile();
@@ -178,10 +177,10 @@ namespace RadameBgTask
         /// <returns></returns>
         private static async Task updateTile()
         {
-            ///最新のレーダー画像を取得
-            string url = await getLatestImageUrl(getSettingAreaCode());
+            //最新のレーダー画像を取得
+            RadameItem item = await RadameDataTask.GetLatestItem(getSettingAreaCode());
             string nowTime = DateTime.Now.ToString("HH:mm") + "更新";
-            StorageFile imageFile = await getHttpFile(url, RADAR_LOCAL_FILE_NAME);
+            StorageFile imageFile = await RadameDataTask.GetHttpFile(item.ImageUrl, getLocalFolder(), RADAR_LOCAL_FILE_NAME);
             if (imageFile == null)
             {
                 return;
@@ -195,13 +194,12 @@ namespace RadameBgTask
                 , getSettingWideTilePosition());
 
             //タイルXML作成
-            Debug.WriteLine("updateTile time=" + nowTime + " url=" + url);
+            Debug.WriteLine("updateTile time=" + nowTime + " url=" + item.ImageUrl);
             TileContent content = new TileContent()
             {
                 Visual = new TileVisual()
                 {
                     Branding = TileBranding.None,
-                    //DisplayName = nowTime,
                     TileMedium = new TileBinding()
                     {
                         Content = new TileBindingContentAdaptive()
@@ -257,95 +255,7 @@ namespace RadameBgTask
             TileNotification tileNotification = new TileNotification(doc);
             TileUpdateManager.CreateTileUpdaterForApplication().Update(tileNotification);
         }
-
-        /// <summary>
-        /// 最新の雨雲画像を取得する
-        /// </summary>
-        /// <param name="areaCode"></param>
-        /// <returns></returns>
-        private static async Task<string> getLatestImageUrl(string areaCode)
-        {
-            string resultUrl = "";
-            string json = await getHttpText(RADAR_JS_URL);
-            string[] lineList = json.Split('\n');
-            foreach (string line in lineList)
-            {
-                string fileName = getFileNameFromJsonData(line);
-                if (!string.IsNullOrEmpty(fileName))
-                {
-                    resultUrl = getImageUrl(RADAR_BASE_URL, areaCode, fileName);
-                    break;
-                }
-            }
-
-            return resultUrl;
-        }
-
-        /// <summary>
-        /// 雨雲レーダーURLを取得する
-        /// </summary>
-        /// <param name="baseUrl"></param>
-        /// <param name="areaCode"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        private static string getImageUrl(string baseUrl, string areaCode, string fileName)
-        {
-            return String.Format("{0}/{1}/{2}", baseUrl, areaCode, fileName);
-        }
-
-        /// <summary>
-        /// 指定したURLからデータをダウンロードし文字列として返す
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        private static async Task<string> getHttpText(string url)
-        {
-            string text = "";
-            try
-            {
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    HttpResponseMessage message = await httpClient.GetAsync(new Uri(url));
-                    text = await message.Content.ReadAsStringAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("getHttpText e=" + e.Message);
-                text = "";
-            }
-
-            return text;
-        }
-
-        /// <summary>
-        /// 指定したURLからデータをダウンロードしファイルに保存後、ファイル情報を返す
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        private static async Task<StorageFile> getHttpFile(string url, string fileName)
-        {
-            StorageFile saveFile = null;
-            try
-            {
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    byte[] data = await httpClient.GetByteArrayAsync(new Uri(url));
-                    StorageFolder folder = getLocalFolder();
-                    saveFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteBytesAsync(saveFile, data);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("getHttpFile e=" + e.Message);
-                return null;
-            }
-
-            return saveFile;
-        }
-
+        
         /// <summary>
         /// アプリケーション用フォルダ（書き込みに権限不要）を取得する
         /// </summary>
@@ -353,22 +263,6 @@ namespace RadameBgTask
         public static StorageFolder getLocalFolder()
         {
             return ApplicationData.Current.LocalFolder;
-        }
-
-        /// <summary>
-        /// レーダー画像列挙データからファイル名を取得する
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
-        private static string getFileNameFromJsonData(string line)
-        {
-            string[] splitItems = line.Split('"');
-            if (splitItems.Length < 2)
-            {
-                return "";
-            }
-
-            return splitItems[1];
         }
 
         /// <summary>
