@@ -38,6 +38,9 @@ namespace Radame
         private float m_minZoomFactor;
         private float m_maxZoomFactor;
 
+        /// <summary>
+        /// 中タイルの表示アイテム
+        /// </summary>
         public PivotItem MiddleTileItem
         {
             get
@@ -54,6 +57,9 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// 横長タイルの表示アイテム
+        /// </summary>
         public PivotItem WideTileItem
         {
             get
@@ -70,6 +76,9 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// 最小拡大率
+        /// </summary>
         public float MinZoomFactor
         {
             get
@@ -86,6 +95,9 @@ namespace Radame
             }
         }
 
+        /// <summary>
+        /// 最大拡大率
+        /// </summary>
         public float MaxZoomFactor
         {
             get
@@ -102,6 +114,9 @@ namespace Radame
             }
         }
         
+        /// <summary>
+        /// 選択している更新間隔時間
+        /// </summary>
         public string UpdateIntervalSelected
         {
             get
@@ -119,6 +134,9 @@ namespace Radame
             }
         }
         
+        /// <summary>
+        /// /更新間隔時間リスト
+        /// </summary>
         public ObservableCollection<UpdateIntervalItem> UpdateIntervalList
         {
             get
@@ -135,11 +153,17 @@ namespace Radame
             }
         }
 
-
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public CreateTileViewModel()
         {
         }
 
+        /// <summary>
+        /// 初期化
+        /// </summary>
+        /// <param name="imageUrl"></param>
         public void Init(string imageUrl)
         {
             this.MaxZoomFactor = DEF_MAX_ZOOM_FACTOR;

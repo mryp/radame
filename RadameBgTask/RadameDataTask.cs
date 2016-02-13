@@ -21,8 +21,7 @@ namespace RadameBgTask
 
         private const string NOW_CAST_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/nowcast";
         private const string RADAR_BASE_URL = "http://www.jma.go.jp/jp/radnowc/imgs/radar";
-
-
+        
         /// <summary>
         /// 予測データリストを取得して返す
         /// </summary>
@@ -33,7 +32,7 @@ namespace RadameBgTask
         }
 
         /// <summary>
-        /// 予測データリストを取得して返す
+        /// 予測データリストを取得して返す（内部処理用）
         /// </summary>
         /// <returns></returns>
         private static async Task<IReadOnlyList<RadameItem>> GetNowCastItemListInternal(string areaCode)
@@ -67,7 +66,11 @@ namespace RadameBgTask
         {
             return GetLatestItemInternal(areaCode).AsAsyncOperation();
         }
-
+        
+        /// <summary>
+        /// 最新のデータ１件だけを取得して返す（内部処理用）
+        /// </summary>
+        /// <returns></returns>
         private static async Task<RadameItem> GetLatestItemInternal(string areaCode)
         {
             RadameItem item = null;
