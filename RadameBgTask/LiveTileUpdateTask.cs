@@ -123,7 +123,6 @@ namespace RadameBgTask
             builder.Name = taskName;
             builder.TaskEntryPoint = className;
             builder.SetTrigger(new TimeTrigger(time, false));
-            builder.SetTrigger(new SystemTrigger(SystemTriggerType.InternetAvailable, false));
             builder.Register();
 
             await updateTile();
