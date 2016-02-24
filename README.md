@@ -5,7 +5,7 @@
 
 ## ライブラリ
 
-UWPで作成しています。
+UWPで作成しています。  
 ステータスバーの設定をするため Windows Mobile Extensions for the UWP をインストールしています。
 
 ## LICENSE
