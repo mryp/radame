@@ -2,6 +2,7 @@
 
 気象庁の降水ナウキャストの画像をWindows 10/Window 10 Mobileで快適に表示できるようにするアプリケーションです。  
 [Windowsストア](https://www.microsoft.com/store/apps/9nblggh5glw3)でリリースビルドしたプログラムを公開しています。
+サポートサイトは[ここ](http://www.poringsoft.net/radame/)に公開しています。
 
 ## ライブラリ
 
